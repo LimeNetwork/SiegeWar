@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 
 public class SiegeWarHud {
-    private static final HashMap<Player, Sidebar> playerSidebarMap = new HashMap<>();
+    public static final HashMap<Player, Sidebar> playerSidebarMap = new HashMap<>();
     private static final String[][] LEGACY_TO_MINIMESSAGE = {
             {"§0", "<black>"},
             {"§1", "<dark_blue>"},
@@ -64,27 +64,26 @@ public class SiegeWarHud {
 
     public static void updateInfo(Player p, Siege siege) {
         ScoreboardLibrary scoreboardLibrary = SiegeWar.getScoreboardLibrary();
-        Sidebar sidebar = scoreboardLibrary.createSidebar();
+        Sidebar sidebar = playerSidebarMap.get(p);
         final Translator translator = Translator.locale(p);
 
         sidebar.title(MiniMessage.miniMessage().deserialize(SiegeHUDManager.checkLength("<gold>" + "<b>" + siege.getTown().getName()) + " " + translator.of("hud_title")));
 
-        sidebar.line(10, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_attackers") + ": " + siege.getAttackerNameForDisplay())));
-        sidebar.line(9, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_defenders") + ": " + siege.getDefenderNameForDisplay())));
-        sidebar.line(8, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_type") + ": " + siege.getSiegeType().getTranslatedName().forLocale(p))));
-        sidebar.line(7, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_warchest") + ": " + (TownyEconomyHandler.isActive() ? TownyEconomyHandler.getFormattedBalance(siege.getWarChestAmount()) : "-"))));
-        sidebar.line(6, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_progress") + ": " + siege.getNumBattleSessionsCompleted() + "/" + SiegeWarSettings.getSiegeDurationBattleSessions())));
-        sidebar.line(5, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_status") + ": " + siege.getStatus().getName())));
-        sidebar.line(4, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_balance") + ": " + siege.getSiegeBalance().toString())));
-        sidebar.line(3, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_banner_control") + ": " + siege.getBannerControllingSide().getFormattedName().forLocale(p) + (siege.getBannerControllingSide() == SiegeSide.NOBODY ? "" : " (" + siege.getBannerControllingResidents().size() + ")"))));
-        sidebar.line(2, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_attacker_points") + ": " + siege.getFormattedAttackerBattlePoints())));
-        sidebar.line(1, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_defender_points") + ": " + siege.getFormattedDefenderBattlePoints())));
-        sidebar.line(0, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_time_remaining") + ": " + siege.getFormattedBattleTimeRemaining(translator))));
+
+        sidebar.line(0, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_type") + siege.getSiegeType().getTranslatedName().forLocale(p))));
+        sidebar.line(1, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_attackers") + siege.getAttackerNameForDisplay())));
+        sidebar.line(2, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_defenders") + siege.getDefenderNameForDisplay())));
+        sidebar.line(3, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_balance") + siege.getSiegeBalance().toString())));
+        sidebar.line(4, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_progress") + siege.getNumBattleSessionsCompleted() + "/" + SiegeWarSettings.getSiegeDurationBattleSessions())));
+        sidebar.line(5, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_warchest") + (TownyEconomyHandler.isActive() ? TownyEconomyHandler.getFormattedBalance(siege.getWarChestAmount()) : "-"))));
+        sidebar.line(6, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_banner_control") + siege.getBannerControllingSide().getFormattedName().forLocale(p) + (siege.getBannerControllingSide() == SiegeSide.NOBODY ? "" : " (" + siege.getBannerControllingResidents().size() + ")"))));
+        sidebar.line(7, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_attacker_points") + siege.getFormattedAttackerBattlePoints())));
+        sidebar.line(8, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_defender_points") + siege.getFormattedDefenderBattlePoints())));
+        sidebar.line(9, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_time_remaining") + siege.getFormattedBattleTimeRemaining(translator))));
 
         if (!sidebar.players().contains(p)) {
             sidebar.addPlayer(p);
         }
-
 //        Scoreboard board = p.getScoreboard();
 //        if (board == null) {
 //            toggleOn(p, siege);
@@ -112,30 +111,39 @@ public class SiegeWarHud {
     }
 
     public static void toggleOn(Player p, Siege siege) {
-        if (playerSidebarMap.containsKey(p)) {
-            Sidebar sidebar = playerSidebarMap.get(p);
-            sidebar.removePlayer(p);
-            sidebar.close();
-            playerSidebarMap.remove(p);
-            return;
-        }
+//        if (playerSidebarMap.containsKey(p)) {
+//            playerSidebarMap.get(p).removePlayer(p);
+//            playerSidebarMap.get(p).close();
+//            playerSidebarMap.remove(p);
+//            return;
+//        }
 
         final Translator translator = Translator.locale(p);
         ScoreboardLibrary scoreboardLibrary = SiegeWar.getScoreboardLibrary();
         Sidebar sidebar = scoreboardLibrary.createSidebar();
 
         sidebar.title(MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_title"))));
-        sidebar.line(10, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_attackers"))));
-        sidebar.line(9, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_defenders"))));
-        sidebar.line(8, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_type"))));
-        sidebar.line(7, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_warchest"))));
-        sidebar.line(6, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_progress"))));
-        sidebar.line(5, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_status"))));
-        sidebar.line(4, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_balance"))));
-        sidebar.line(3, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_banner_control"))));
-        sidebar.line(2, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_attacker_points"))));
-        sidebar.line(1, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_defender_points"))));
-        sidebar.line(0, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_time_remaining"))));
+        sidebar.line(0, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_type"))));
+        sidebar.line(1, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_attackers"))));
+        sidebar.line(2, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_defenders"))));
+        sidebar.line(3, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_balance"))));
+        sidebar.line(4, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_progress"))));
+        sidebar.line(5, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_warchest"))));
+        sidebar.line(6, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_banner_control"))));
+        sidebar.line(7, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_attacker_points"))));
+        sidebar.line(8, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_defender_points"))));
+        sidebar.line(9, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_time_remaining"))));
+        //        sidebar.line(10, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_attackers"))));
+//        sidebar.line(9, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_defenders"))));
+//        sidebar.line(8, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_type"))));
+//        sidebar.line(7, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_warchest"))));
+//        sidebar.line(6, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_progress"))));
+//        sidebar.line(5, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_status"))));
+//        sidebar.line(4, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_siege_balance"))));
+//        sidebar.line(3, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_banner_control"))));
+//        sidebar.line(2, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_attacker_points"))));
+//        sidebar.line(1, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_defender_points"))));
+//        sidebar.line(0, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_time_remaining"))));
 
         sidebar.addPlayer(p);
         playerSidebarMap.put(p, sidebar);

@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.gmail.goosius.siegewar.SiegeWar;
 import com.gmail.goosius.siegewar.objects.Siege;
 
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,8 +35,11 @@ public class SiegeHUDManager {
 
     public static void toggleOff(Player player) {
         warHudUsers.remove(player);
-        if (player.isOnline())
-            player.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+        if (player.isOnline()) {
+            SiegeWarHud.playerSidebarMap.get(player).removePlayer(player);
+            SiegeWarHud.playerSidebarMap.get(player).close();
+            SiegeWarHud.playerSidebarMap.remove(player);
+        }
     }
 
     public static void updateHUDs() {
@@ -49,7 +54,13 @@ public class SiegeHUDManager {
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {
-        warHudUsers.remove(event.getPlayer());
+        Player player = event.getPlayer();
+        if (SiegeWarHud.playerSidebarMap.containsKey(player)) {
+            warHudUsers.remove(player);
+            SiegeWarHud.playerSidebarMap.get(player).removePlayer(player);
+            SiegeWarHud.playerSidebarMap.get(player).close();
+            SiegeWarHud.playerSidebarMap.remove(player);
+        }
     }
 
     public static String checkLength(String string) {
