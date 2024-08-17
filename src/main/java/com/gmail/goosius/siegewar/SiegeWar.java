@@ -6,6 +6,9 @@ import com.gmail.goosius.siegewar.utils.DataCleanupUtil;
 
 import com.gmail.goosius.siegewar.utils.PermsCleanupUtil;
 import com.gmail.goosius.siegewar.utils.SiegeWarMoneyUtil;
+import net.megavex.scoreboardlibrary.api.ScoreboardLibrary;
+import net.megavex.scoreboardlibrary.api.exception.NoPacketAdapterAvailableException;
+import net.megavex.scoreboardlibrary.api.noop.NoopScoreboardLibrary;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,8 +44,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class SiegeWar extends JavaPlugin {
-	
+
 	private static SiegeWar plugin;
+	private static ScoreboardLibrary scoreboardLibrary;
 	private final String requiredTownyVersion = "0.100.3.0";
 	private static final SiegeHUDManager siegeHUDManager = new SiegeHUDManager();
 	private final Object scheduler;
@@ -52,6 +56,10 @@ public class SiegeWar extends JavaPlugin {
 
 	public static SiegeWar getSiegeWar() {
 		return plugin;
+	}
+
+	public static ScoreboardLibrary getScoreboardLibrary() {
+		return scoreboardLibrary;
 	}
 
 	public File getSiegeWarJarFile() {
@@ -71,6 +79,12 @@ public class SiegeWar extends JavaPlugin {
     public void onEnable() {
     	
     	printSickASCIIArt();
+
+		try {
+			scoreboardLibrary = ScoreboardLibrary.loadScoreboardLibrary(plugin);
+		} catch (NoPacketAdapterAvailableException e) {
+			plugin.getLogger().warning("No scoreboard packet adapter available!");
+		}
     	
         if (!townyVersionCheck()) {
             severe("Towny version does not meet required minimum version: " + requiredTownyVersion);
@@ -124,7 +138,8 @@ public class SiegeWar extends JavaPlugin {
 	@Override
     public void onDisable() {
     	info("Shutting down...");
-    }
+		scoreboardLibrary.close();
+	}
     
     private boolean loadAll() {
     	return !Towny.getPlugin().isError()

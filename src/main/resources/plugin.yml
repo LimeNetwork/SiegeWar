@@ -5,7 +5,7 @@ api-version: ${project.bukkitAPIVersion}
 author: [Goosius,LlmDl]
 website: 'townyadvanced.github.io'
 prefix: ${project.artifactId}
-depend: [Towny]
+depend: [Towny, packetevents]
 softdepend: [TownyCultures, TownyChat, dynmap, Dynmap-Towny]
 folia-supported: true
 
