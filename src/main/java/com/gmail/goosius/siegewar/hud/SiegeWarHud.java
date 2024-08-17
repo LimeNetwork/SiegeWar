@@ -81,8 +81,6 @@ public class SiegeWarHud {
         sidebar.line(1, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_defender_points") + ": " + siege.getFormattedDefenderBattlePoints())));
         sidebar.line(0, MiniMessage.miniMessage().deserialize(convertLegacyToMiniMessage(translator.of("hud_battle_time_remaining") + ": " + siege.getFormattedBattleTimeRemaining(translator))));
 
-        sidebar.close();
-
         if (!sidebar.players().contains(p)) {
             sidebar.addPlayer(p);
         }
