@@ -126,22 +126,9 @@ public class SiegeWarTownPeacefulnessUtil {
 		}
 
 		Town town = resident.getTownOrNull();
-		if (!SiegeWarSettings.arePeacefulCapitalsAllowed() && town.isCapital()) {
-			if (!isTownPeaceful(town)) {
-				//If the capital is non-peaceful, it cannot switch to peaceful
-				TownyMessaging.sendErrorMsg(player, translator.of("msg_err_capital_towns_cannot_go_peaceful"));
-				return;
-            } else {
-				/*
-				 * If the capital is peaceful and switching to non-peaceful
-				 * (e.g. after recently becoming the capital)
-				 * then it cannot cancel the switch
-				 */
-				if(getTownPeacefulnessChangeCountdownDays(town) > 0) {
-					TownyMessaging.sendErrorMsg(player, translator.of("msg_err_capital_towns_cannot_cancel_non_peaceful_switch"));
-					return;
-				}
-			}
+		if(getTownPeacefulnessChangeCountdownDays(town) > 0) {
+			TownyMessaging.sendErrorMsg(player, translator.of("msg_err_capital_towns_cannot_cancel_non_peaceful_switch"));
+			return;
 		}
 
 		toggleTownPeacefulness(town);
